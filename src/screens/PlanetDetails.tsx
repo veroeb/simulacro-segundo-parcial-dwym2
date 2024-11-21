@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../App";
+import { API_URL } from "@env";
 
 type PlanetDetailsProps = NativeStackScreenProps<
   RootStackParamList,
@@ -28,7 +29,7 @@ const PlanetDetails: React.FC<PlanetDetailsProps> = ({ route, navigation }) => {
   const handleSave = () => {
     const updatedMoonNames = newMoonNames.split(",").map((moon) => moon.trim());
 
-    fetch(`http://192.168.1.21:8000/planets/${planet.id}`, {
+    fetch(`${API_URL}/planets/${planet.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -50,7 +51,9 @@ const PlanetDetails: React.FC<PlanetDetailsProps> = ({ route, navigation }) => {
   };
 
   const handleDelete = () => {
-    fetch(`http://192.168.1.21:8000/planets/${planet.id}`, { method: "DELETE" })
+    fetch(`${API_URL}/planets/${planet.id}`, {
+      method: "DELETE",
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error(

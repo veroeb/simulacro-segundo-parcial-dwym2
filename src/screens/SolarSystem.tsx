@@ -11,6 +11,7 @@ import { Picker } from "@react-native-picker/picker";
 import PlanetCard from "../components/PlanetCard";
 import { RootStackParamList, Planet } from "../../App";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { API_URL } from "@env";
 
 type SolarSystemProps = NativeStackScreenProps<
   RootStackParamList,
@@ -22,9 +23,15 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ navigation }) => {
   const [sortOrder, setSortOrder] = useState<string>("default");
 
   const fetchPlanets = () => {
-    fetch("http://192.168.1.21:8000/planets")
+    fetch(`${API_URL}/planets`)
       .then((response) => response.json())
-      .then((data) => setPlanets(data))
+      .then((data) => {
+        const formattedData = data.map((planet: Planet) => ({
+          ...planet,
+          id: planet.id.toString(),
+        }));
+        setPlanets(formattedData);
+      })
       .catch((error) => console.error(error));
   };
 
@@ -43,7 +50,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={{ color: "#fff", fontSize: 20, margin: 20 }}>Sort by:</Text>
+      <Text style={{ fontSize: 20, margin: 20 }}>Sort by:</Text>
       <View style={styles.containerPicker}>
         <Picker
           selectedValue={sortOrder}
@@ -69,6 +76,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ navigation }) => {
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
       />
+
       <TouchableOpacity
         style={[
           styles.addButton,
@@ -87,7 +95,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    // backgroundColor: "#000",
     justifyContent: "center",
     alignItems: "center",
   },

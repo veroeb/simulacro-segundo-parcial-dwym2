@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../App";
+import { API_URL } from "@env";
 
 type AddPlanetProps = NativeStackScreenProps<RootStackParamList, "AddPlanet">;
 
@@ -9,37 +10,23 @@ const AddPlanet: React.FC<AddPlanetProps> = ({ navigation }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState("");
-  const [planets, setPlanets] = useState([]);
-
-  useEffect(() => {
-    fetch("http://192.168.1.21:8000/planets")
-      .then((response) => response.json())
-      .then((data) => setPlanets(data))
-      .catch((error) => console.error("Error fetching planets:", error));
-  }, []);
-
-  const getNextId = (): number => {
-    const numericIds = planets
-      .map((planet: any) => parseInt(planet.id, 10))
-      .filter((id) => !isNaN(id));
-    return numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;
-  };
+  const [moonsInput, setMoonsInput] = useState("");
 
   const handleAdd = () => {
     const defaultImage =
       "https://t4.ftcdn.net/jpg/02/77/98/67/360_F_277986727_L2PWXsvn1LOyBYGYu2AJ0nABo5eQtFV4.jpg";
-    const newId = getNextId();
 
-    fetch("http://192.168.1.21:8000/planets", {
+    const moonNames = moonsInput.split(",").map((moon) => moon.trim());
+
+    fetch(`${API_URL}/planets`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        id: newId,
         name,
         description,
         image: image || defaultImage,
-        moons: 0,
-        moon_names: [],
+        moons: moonNames.length,
+        moon_names: moonNames,
       }),
     })
       .then(() => navigation.navigate("SolarSystem", { refresh: true }))
@@ -64,6 +51,12 @@ const AddPlanet: React.FC<AddPlanetProps> = ({ navigation }) => {
         placeholder="Image URL"
         value={image}
         onChangeText={setImage}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Moons (separated by commas)"
+        value={moonsInput}
+        onChangeText={setMoonsInput}
         style={styles.input}
       />
       <Button title="Add Planet" onPress={handleAdd} />
